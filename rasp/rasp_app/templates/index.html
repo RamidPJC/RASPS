@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Расписание занятий</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 1200px;
+      margin-top: 20px;
+    }
+
+    .navbar {
+      background-color: #ffffff;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .navbar .logo {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #333;
+      margin-left: 20px;
+    }
+
+    .navbar .admin-links {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar .admin-links a {
+      margin-left: 15px;
+      text-decoration: none;
+      color: #007bff;
+      font-size: 1em;
+    }
+
+    .navbar .admin-links a:hover {
+      text-decoration: underline;
+    }
+
+    .navbar .search-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar input[type="text"] {
+      padding: 7px;
+      width: 220px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      margin-right: 10px;
+    }
+
+    .navbar button {
+      background-color: #007bff;
+      color: white;
+      padding: 7px 12px;
+      border-radius: 3px;
+      border-color: #007bff;
+      cursor: pointer;
+      font-size: 1em;
+      margin-right: 20px;
+    }
+
+    .navbar .login {
+      background-color: #6c757d;
+      color: white;
+      padding: 7px 12px;
+      border-radius: 3px;
+      font-size: 1em;
+      margin-right: 20px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .navbar .login:hover {
+      background-color: #5a6268;
+    }
+
+    .navbar .logout {
+      background-color: #6c757d;
+      color: white;
+      padding: 7px 12px;
+      border-radius: 3px;
+      font-size: 1em;
+      margin-right: 20px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .navbar .logout:hover {
+      background-color: #5a6268;
+    }
+
+    .date-header {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+      margin: 60px 0 20px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f8f8f8;
+      font-size: 1.2em;
+      color: #555;
+    }
+
+    td {
+      font-size: 1em;
+      color: #333;
+      position: relative;
+    }
+
+    .task {
+      font-style: italic;
+      color: #888;
+      word-break: break-word;
+    }
+
+    /* Скрываем кнопки по умолчанию */
+    .task-buttons {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    /* Отображаем кнопки при наведении на ячейку */
+    td:hover .task-buttons {
+      display: inline-block;
+    }
+
+    .task-buttons a,
+    .task-buttons form {
+      margin-left: 5px;
+      text-decoration: none;
+    }
+
+    .task-buttons form {
+      display: inline-block;
+    }
+
+    .task-buttons button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    .task-buttons button.delete {
+      background-color: #dc3545;
+    }
+
+    .task-buttons a {
+      background-color: #28a745;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    .file-link {
+      display: flex;
+      align-items: center;
+      color: #007bff;
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+
+    .file-icon {
+      margin-right: 5px;
+      font-size: 1.2em;
+    }
+
+    .return-button-container {
+      text-align: center;
+      margin-top: 75px;
+      margin-left: 1500px;
+      position: absolute;
+    }
+
+    .return-button {
+      background-color: #6c757d;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .return-button:hover {
+      background-color: #5a6268;
+    }
+
+  </style>
+</head>
+
+<body>
+  {% block content %}
+  <div class="navbar">
+    <div class="logo">Расписание занятий</div>
+
+    <div class="search-container">
+      <form method="get">
+        <input type="text" name="find_week" placeholder="ГГГГ-ММ-ДД ГГГГ-ММ-ДД">
+        <button class="button" type="submit">Найти неделю</button>
+      </form>
+    </div>
+
+    <div class="admin-links">
+      {% if user.is_staff %}
+        <a href="{% url 'create-weekday' %}">Добавить день недели</a>
+        <a href="{% url 'create-week' %}">Добавить неделю</a>
+        <a href="{% url 'create-task' %}">Создать задачу</a>
+        <a href="{% url 'create-lesson' %}">Добавить предмет</a>
+      {% endif %}
+      
+      {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}" class="logout">Выйти</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="login">Войти</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="date-header">{{ date_range.left_date }} - {{ date_range.right_date }}</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 150px;">День недели</th>
+          <th style="width: 300px;">Предмет</th>
+          <th>Задание</th>
+          <th>Материалы</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for week_day, tasks in tasks_by_day.items %}
+          <tr>
+            <td rowspan="{{ tasks|length }}">{{ week_day }}</td>
+            {% for task in tasks %}
+              <td>{{ task.lesson.title }}</td>
+              <td class="task">
+                {{ task.task }}
+                {% if user.is_staff %}
+                <div class="task-buttons">
+                  <a href="{% url 'update-task' task.pk %}">Редактировать</a>
+                  <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="tsk_pk" value="{{ task.pk }}">
+                    <button class="delete" type="submit" name="delbutton">Удалить</button>
+                  </form>
+                </div>
+                {% endif %}
+              </td>
+              <td>
+                {% if task.file %}
+                  <a href="{{ task.file.url }}" class="file-link" download>
+                    <span class="file-icon">📄</span> Скачать файл
+                  </a>
+                {% else %}
+                  <!-- Если файла нет, оставляем ячейку пустой -->
+                {% endif %}
+              </td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endblock %}
+
+  {% block returnb %}
+  {% endblock %}
+</body>
+</html>
